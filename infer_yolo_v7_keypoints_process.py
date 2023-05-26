@@ -116,6 +116,14 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
 
         return ktps_list
 
+    def get_boxes(self, output):
+        bboxes = []
+        for i, o in enumerate(output):
+            o = o[:,:6]
+            for i, (*box, _, _) in enumerate(o.detach().cpu().numpy()):
+                bboxes.append(*list(np.array(box)[None]))
+        return np.array(bboxes)
+
     def run(self):
         # Core function of your process
         # Initialization
@@ -177,7 +185,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
         param = self.get_param_object()
         # Inference and NMS
         output = self.model(img)[0]
-        output = non_max_suppression_kpt(
+        results = non_max_suppression_kpt(
                                     output,
                                     param.conf_thres,
                                     param.conf_kp_thres,
@@ -186,14 +194,18 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
                                     kpt_label=True
                                     )
         
+        boxes_xyxy = self.get_boxes(results)
         with torch.no_grad():
-            output = output_to_keypoint(output)
-
-        obj_id = 0
-        for idx, result in enumerate(output):
-            box_x1, box_y1, box_w, box_h = result[2:6]
+            output = output_to_keypoint(results)
+            
+        idx = 0
+        for result, b in zip(output, boxes_xyxy):
+            box_x1, box_y1, box_x2, box_y2 = b
             box_x1, box_y1 = box_x1 / self.ratio[0], box_y1 / self.ratio[1]
-            box_w, box_h = box_w / self.ratio[0], box_h / self.ratio[1]
+            box_x2, box_y2 = box_x2 / self.ratio[0], box_y2 / self.ratio[1]
+
+            box_h = box_y2 - box_y1
+            box_w = box_x2 - box_x1 
 
             conf = float(result[6])         
             kpts_data = self.get_skeleton_kpts(output[idx, 7:].T)
@@ -213,8 +225,8 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
                     kept_kp_id.append(link.end_point_index)
                     keypts.append((link.end_point_index, dataprocess.CPointF(float(x2), float(y2))))
 
-            self.add_object(obj_id, 0, conf, float(box_x1), float(box_y1), box_w, box_h, keypts)
-            obj_id += 1
+            self.add_object(idx, 0, conf, float(box_x1), float(box_y1), float(box_w), float(box_h), keypts)
+            idx += 1
 
 # --------------------
 # - Factory class to build process object
