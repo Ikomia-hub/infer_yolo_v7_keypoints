@@ -174,7 +174,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
             keypoint_links.append(link)
 
         self.set_keypoint_links(keypoint_links)
-        self.set_object_names([self.classes])
+        self.set_object_names(self.classes)
 
         self.infer(image)
 
