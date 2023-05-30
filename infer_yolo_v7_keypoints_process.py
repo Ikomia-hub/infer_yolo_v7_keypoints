@@ -82,6 +82,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
         self.imgsz = 640
         self.ratio = None
         self.url = "https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7-w6-pose.pt"
+        self.classes = ["person"]
         self.skeleton = [[16, 14], [14, 12], [17, 15], [15, 13], [12, 13], [6, 12],
                     [7, 13], [6, 7], [6, 8], [7, 9], [8, 10], [9, 11], [2, 3],
                     [1, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7]]
@@ -173,7 +174,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
             keypoint_links.append(link)
 
         self.set_keypoint_links(keypoint_links)
-        self.set_object_names(["person"])
+        self.set_object_names([self.classes])
 
         self.infer(image)
 
@@ -203,13 +204,11 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
             box_x1, box_y1, box_x2, box_y2 = b
             box_x1, box_y1 = box_x1 / self.ratio[0], box_y1 / self.ratio[1]
             box_x2, box_y2 = box_x2 / self.ratio[0], box_y2 / self.ratio[1]
-
             box_h = box_y2 - box_y1
             box_w = box_x2 - box_x1 
 
             conf = float(result[6])         
             kpts_data = self.get_skeleton_kpts(output[idx, 7:].T)
-
             keypts = []
             kept_kp_id = []
             for link in self.get_keypoint_links():
