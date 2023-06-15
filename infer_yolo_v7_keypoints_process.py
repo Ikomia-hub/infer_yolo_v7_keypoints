@@ -149,6 +149,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
 
             if param.cuda:
                 self.model.half().to(self.device)
+            param.update = False
 
         # Preprocess image
         image = image[...,::-1]
