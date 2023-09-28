@@ -239,7 +239,6 @@ class InferYoloV7KeypointsFactory(dataprocess.CTaskFactory):
         # Set process information as string here
         self.info.name = "infer_yolo_v7_keypoints"
         self.info.short_description = "YOLOv7 pose estimation models."
-        self.info.description = "This plugin proposes inference on YOLOv7 pose estimation models."
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Pose"
         self.info.version = "1.0.0"
@@ -252,7 +251,8 @@ class InferYoloV7KeypointsFactory(dataprocess.CTaskFactory):
         # URL of documentation
         self.info.documentation_link = ""
         # Code source repository
-        self.info.repository = "https://github.com/WongKinYiu/yolov7"
+        self.info.repository = "https://github.com/Ikomia-hub/infer_yolo_v7_keypoints"
+        self.info.original_repository = "https://github.com/WongKinYiu/yolov7"
         # Keywords used for search
         self.info.keywords = "yolo, v7, object, detection, real-time, keypoints, pose, estimation"
 
