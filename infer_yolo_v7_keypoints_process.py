@@ -139,7 +139,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
 
         # Load model
         if self.model is None or param.update:
-            self.device = torch.device("cuda") if param.cuda else torch.device("cpu")
+            self.device = torch.device("cuda") if param.cuda and torch.cuda.is_available() else torch.device("cpu")
             if not os.path.isfile(self.model_weight_file):
                 self.download_model()
 
@@ -147,7 +147,7 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
             self.model = weigths['model']
             _ = self.model.float().eval()
 
-            if param.cuda:
+            if param.cuda and torch.cuda.is_available():
                 self.model.half().to(self.device)
             param.update = False
 
@@ -162,8 +162,8 @@ class InferYoloV7Keypoints(dataprocess.CKeypointDetectionTask):
                                         )
         image = transforms.ToTensor()(image)
         image = torch.tensor(np.array([image.numpy()]))
-        if param.cuda:
-            image = image.half().to(self.device) 
+        if param.cuda and torch.cuda.is_available():
+            image = image.half().to(self.device)
 
         # Set Keypoints links
         keypoint_links = []
