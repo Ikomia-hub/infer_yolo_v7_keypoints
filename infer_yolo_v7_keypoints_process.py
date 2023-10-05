@@ -49,7 +49,7 @@ class InferYoloV7KeypointsParam(core.CWorkflowTaskParam):
         self.cuda = strtobool(param_map["cuda"])
         self.conf_thres = float(param_map["conf_thres"])
         self.conf_kp_thres = float(param_map["conf_kp_thres"])
-        pass
+        self.update = True
 
     def get_values(self):
         # Send parameters values to Ikomia application
